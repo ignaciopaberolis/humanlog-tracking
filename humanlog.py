@@ -27,17 +27,45 @@ fecha_hasta = hoy.strftime("%d/%m/%Y")
 # ABRIR CHROME
 # =========================
 
+# =========================
+# CARPETA DESCARGAS
+# =========================
+
+download_dir = os.path.join(
+    os.getcwd(),
+    "downloads"
+)
+
+os.makedirs(
+    download_dir,
+    exist_ok=True
+)
+
+# =========================
+# CHROME
+# =========================
+
 options = webdriver.ChromeOptions()
 
 options.add_argument("--headless=new")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 
+prefs = {
+    "download.default_directory": download_dir,
+    "download.prompt_for_download": False,
+    "download.directory_upgrade": True
+}
+
+options.add_experimental_option(
+    "prefs",
+    prefs
+)
+
 driver = webdriver.Chrome(
     service=Service(ChromeDriverManager().install()),
     options=options
 )
-
 # =========================
 # LOGIN
 # =========================
@@ -50,11 +78,11 @@ usuario = driver.find_element(By.NAME, "usu")
 password = driver.find_element(By.NAME, "pass")
 
 usuario.send_keys(
-    os.environ["HUMANLOG_USER"]
+    os.getenv("HUMANLOG_USER", "GMP")
 )
 
 password.send_keys(
-    os.environ["HUMANLOG_PASS"]
+    os.getenv("HUMANLOG_PASS", "GMP")
 )
 
 boton_login = driver.find_element(By.ID, "registrar")
@@ -117,8 +145,7 @@ time.sleep(5)
 # =========================
 
 downloads_path = os.path.join(
-    os.path.expanduser("~"),
-    "Downloads",
+    download_dir,
     "*.csv"
 )
 
@@ -219,15 +246,23 @@ scope = [
     "https://www.googleapis.com/auth/drive"
 ]
 
-google_creds = json.loads(
-    os.environ["GOOGLE_CREDS"]
-)
+if os.getenv("GOOGLE_CREDS"):
 
-creds = ServiceAccountCredentials.from_json_keyfile_dict(
-    google_creds,
-    scope
-)
+    google_creds = json.loads(
+        os.environ["GOOGLE_CREDS"]
+    )
 
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(
+        google_creds,
+        scope
+    )
+
+else:
+
+    creds = ServiceAccountCredentials.from_json_keyfile_name(
+        "credenciales.json",
+        scope
+    )
 client = gspread.authorize(creds)
 
 sheet = client.open_by_url(
