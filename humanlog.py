@@ -9,7 +9,7 @@ import pandas as pd
 import glob
 import os
 import time
-
+import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -49,8 +49,13 @@ time.sleep(2)
 usuario = driver.find_element(By.NAME, "usu")
 password = driver.find_element(By.NAME, "pass")
 
-usuario.send_keys("GMP")
-password.send_keys("GMP")
+usuario.send_keys(
+    os.environ["HUMANLOG_USER"]
+)
+
+password.send_keys(
+    os.environ["HUMANLOG_PASS"]
+)
 
 boton_login = driver.find_element(By.ID, "registrar")
 boton_login.click()
@@ -214,8 +219,12 @@ scope = [
     "https://www.googleapis.com/auth/drive"
 ]
 
-creds = ServiceAccountCredentials.from_json_keyfile_name(
-    "credenciales.json",
+google_creds = json.loads(
+    os.environ["GOOGLE_CREDS"]
+)
+
+creds = ServiceAccountCredentials.from_json_keyfile_dict(
+    google_creds,
     scope
 )
 
