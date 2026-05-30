@@ -3,6 +3,7 @@ name: Human Log Tracking
 on:
   schedule:
     - cron: '0 13 * * *'
+    - cron: '30 13 * * *'
     - cron: '0 14 * * *'
   workflow_dispatch:
 
@@ -24,7 +25,7 @@ jobs:
 
       - name: Instalar dependencias
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Ejecutar Human Log
