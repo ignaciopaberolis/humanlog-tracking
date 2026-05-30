@@ -378,5 +378,3 @@ set_column_width(sheet, "E", 140)
 print("Formato aplicado 😄")
 
 print("Google Sheets actualizado 😄🔥")
-
-input("ENTER para cerrar...")
